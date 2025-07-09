@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Inventory Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 font-sans">
+<header class="bg-blue-600 text-white p-6 text-center">
+    <h1 class="text-3xl font-bold">🏪 Retail Inventory Management</h1>
+    <p class="mt-2">Manage your products, track stock levels, and never run out of inventory</p>
+</header>
+
+<nav class="bg-white shadow-md">
+    <ul class="flex justify-center space-x-6 p-4">
+        <li><a href="#dashboard" class="text-blue-600 hover:underline">📊 Dashboard</a></li>
+        <li><a href="#products" class="text-blue-600 hover:underline">📦 All Products</a></li>
+        <li><a href="#add-product" class="text-blue-600 hover:underline">➕ Add Product</a></li>
+        <li><a href="#low-stock" class="text-blue-600 hover:underline">⚠️ Low Stock</a></li>
+    </ul>
+</nav>
+
+<main class="container mx-auto p-6">
+    <section id="dashboard" class="mb-8">
+        <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-2xl font-bold" id="total-products">0</h3>
+                <p class="text-gray-600">Total Products</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-2xl font-bold" id="low-stock-items">0</h3>
+                <p class="text-gray-600">Low Stock Items</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-2xl font-bold" id="total-value">$0</h3>
+                <p class="text-gray-600">Total Inventory Value</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-2xl font-bold" id="total-items">0</h3>
+                <p class="text-gray-600">Total Items in Stock</p>
+            </div>
+        </div>
+
+        <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">📈 Quick Actions</h2>
+            <div class="flex space-x-4">
+                <a href="#add-product" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add New Product</a>
+                <a href="#low-stock" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">View Low Stock</a>
+                <button id="refresh-data" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Refresh Data</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">📦 All Products</h2>
+            <div class="flex space-x-2">
+                <input id="search-input" type="text" placeholder="🔍 Search" class="border p-2 rounded">
+                <button id="refresh-products" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">🔄 Refresh</button>
+            </div>
+        </div>
+        <table class="w-full bg-white rounded-lg shadow-md">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="px-6 py-3 text-left">Name</th>
+                <th class="px-6 py-3 text-left">Code</th>
+                <th class="px-6 py-3 text-left">Quantity</th>
+                <th class="px-6 py-3 text-left">Price</th>
+                <th class="px-6 py-3 text-left">Threshold</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+            </tr>
+            </thead>
+            <tbody id="product-table-body"></tbody>
+        </table>
+    </section>
+
+    <section id="add-product" class="mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">➕ Add New Product</h2>
+            <form id="add-product-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="add-name" class="block text-sm font-medium">Product Name *</label>
+                    <input id="add-name" type="text" required class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label for="add-code" class="block text-sm font-medium">Product Code *</label>
+                    <input id="add-code" type="text" required class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label for="add-quantity" class="block text-sm font-medium">Quantity *</label>
+                    <input id="add-quantity" type="number" min="0" required class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label for="add-price" class="block text-sm font-medium">Price ($) *</label>
+                    <input id="add-price" type="number" min="0" step="0.01" required class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label for="add-threshold" class="block text-sm font-medium">Low Stock Threshold</label>
+                    <input id="add-threshold" type="number" min="0" class="w-full border p-2 rounded">
+                </div>
+                <div class="col-span-2 flex space-x-4">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">💾 Add Product</button>
+                    <button type="reset" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">🧹 Clear Form</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section id="low-stock" class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">⚠️ Low Stock Alert</h2>
+            <button id="refresh-low-stock" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">🔄 Refresh Low Stock</button>
+        </div>
+        <p class="mb-4">Products that need immediate attention and restocking.</p>
+        <table class="w-full bg-white rounded-lg shadow-md">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="px-6 py-3 text-left">Name</th>
+                <th class="px-6 py-3 text-left">Code</th>
+                <th class="px-6 py-3 text-left">Quantity</th>
+                <th class="px-6 py-3 text-left">Threshold</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+            </tr>
+            </thead>
+            <tbody id="low-stock-table-body"></tbody>
+        </table>
+    </section>
+</main>
+
+<div id="edit-product-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">✏️ Edit Product</h2>
+            <button class="close-modal text-gray-600 text-2xl">×</button>
+        </div>
+        <form id="edit-product-form" class="grid grid-cols-1 gap-4">
+            <div>
+                <label for="edit-name" class="block text-sm font-medium">Product Name *</label>
+                <input id="edit-name" type="text" required class="w-full border p-2 rounded">
+            </div>
+            <div>
+                <label for="edit-code" class="block text-sm font-medium">Product Code *</label>
+                <input id="edit-code" type="text" required class="w-full border p-2 rounded">
+            </div>
+            <div>
+                <label for="edit-quantity" class="block text-sm font-medium">Quantity *</label>
+                <input id="edit-quantity" type="number" min="0" required class="w-full border p-2 rounded">
+            </div>
+            <div>
+                <label for="edit-price" class="block text-sm font-medium">Price ($) *</label>
+                <input id="edit-price" type="number" min="0" step="0.01" required class="w-full border p-2 rounded">
+            </div>
+            <div>
+                <label for="edit-threshold" class="block text-sm font-medium">Low Stock Threshold</label>
+                <input id="edit-threshold" type="number" min="0" class="w-full border p-2 rounded">
+            </div>
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">💾 Update Product</button>
+                <button type="button" class="close-modal bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">❌ Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="manage-stock-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">📦 Manage Stock</h2>
+            <button class="close-modal text-gray-600 text-2xl">×</button>
+        </div>
+        <form id="manage-stock-form" class="grid grid-cols-1 gap-4">
+            <div>
+                <label for="stock-quantity" class="block text-sm font-medium">Quantity</label>
+                <input id="stock-quantity" type="number" min="1" required class="w-full border p-2 rounded">
+            </div>
+            <div class="flex space-x-4">
+                <button id="increase-stock" type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">➕ Increase Stock</button>
+                <button id="decrease-stock" type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">➖ Decrease Stock</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

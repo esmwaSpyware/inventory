@@ -1,0 +1,208 @@
+Developer Documentation
+Overview
+
+The Retail Inventory System is a web-based application for managing retail product inventory. It allows users to add, update, delete, and track products, monitor stock levels, and receive low stock alerts. The system consists of:
+
+    Backend: A Spring Boot application (Java 17) with RESTful APIs, using Spring Data JPA and an H2 in-memory database (configurable for MySQL).
+    Frontend: A static web application using HTML, JavaScript, and Tailwind CSS, served via http-server, interacting with the backend APIs.
+
+Technology Stack
+
+    Backend:
+        Framework: Spring Boot 3.2.0
+        Language: Java 17
+        Database: H2 (in-memory) or MySQL (configurable)
+        ORM: Spring Data JPA
+        Validation: Jakarta Validation
+        Build Tool: Maven
+        Dependencies: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-validation, h2, mysql-connector-java
+    Frontend:
+        HTML/CSS: HTML5, Tailwind CSS (CDN)
+        JavaScript: Vanilla JavaScript for API interactions
+        Web Server: http-server (Node.js)
+    Development Tools:
+        IDE: IntelliJ IDEA (Community or Ultimate)
+        Node.js: For running http-server
+        Browser: Chrome/Firefox for testing
+
+Architecture
+
+    Backend:
+        MVC Pattern: Follows Model-View-Controller with RESTful APIs.
+        Layers:
+            Entity: Product.java defines the data model.
+            Repository: ProductRepository.java handles database operations.
+            Service: ProductService.java contains business logic.
+            Controller: ProductController.java exposes REST endpoints.
+        CORS: Configured in InventoryApplication.java to allow frontend requests from http://localhost:3000 or http://192.168.56.1:3000.
+    Frontend:
+        Single-page application with sections for Dashboard, All Products, Add Product, and Low Stock.
+        JavaScript (app.js) handles API calls, DOM manipulation, and form submissions.
+        Tailwind CSS for responsive styling, supplemented by styles.css.
+
+File Structure
+text
+retail-inventory-system/
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/retail/inventory/
+│   │   │   │       ├── InventoryApplication.java
+│   │   │   │       ├── entity/
+│   │   │   │       │   └── Product.java
+│   │   │   │       ├── repository/
+│   │   │   │       │   └── ProductRepository.java
+│   │   │   │       ├── service/
+│   │   │   │       │   └── ProductService.java
+│   │   │   │       ├── controller/
+│   │   │   │       │   └── ProductController.java
+│   │   │   └── resources/
+│   │   │       └── application.properties
+│   └── pom.xml
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   ├── styles.css
+│   └── favicon.ico (optional)
+Backend Setup in IntelliJ IDEA
+
+    Prerequisites:
+        Java 17 (JDK)
+        Maven
+        IntelliJ IDEA
+        Node.js (for frontend)
+    Create Project:
+        Open IntelliJ IDEA, select File > New > Project > Spring Initializr.
+        Configure:
+            SDK: Java 17
+            Language: Java
+            Type: Maven
+            Group: com.retail
+            Artifact: inventory
+            Java Version: 17
+        Add dependencies: Spring Web, Spring Data JPA, H2 Database, Spring Boot Starter Validation, MySQL Driver.
+        Create in retail-inventory-system/backend.
+    Copy Files:
+        Create packages: entity, repository, service, controller under com.retail.inventory.
+        Copy provided Java files into respective packages.
+        Replace application.properties and pom.xml with provided content.
+    Sync Maven:
+        Open Maven tab (right sidebar), click Reload All Maven Projects.
+        Run mvn clean install in terminal if dependencies fail.
+    Run Backend:
+        Right-click InventoryApplication.java > Run 'InventoryApplication.main()'.
+        Access at http://localhost:8080.
+        Verify H2 console at http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:testdb, Username: sa, Password: password).
+
+Frontend Setup
+
+    Create Directory:
+        Create retail-inventory-system/frontend.
+        Copy index.html, app.js, styles.css, and optionally favicon.ico.
+    Install http-server:
+        Open terminal in frontend:
+        bash
+
+    npm install -g http-server
+
+Run Frontend:
+
+    Start server:
+    bash
+
+        http-server -p 3000
+        Access at http://localhost:3000 or http://192.168.56.1:3000 (depending on network).
+
+API Endpoints
+Method	Endpoint	Description	Request Body/Example
+GET	/api/products	List all products	None
+GET	/api/products/{id}	Get product by ID	None
+GET	/api/products/search?query={q}	Search products by name	None
+GET	/api/products/low-stock	List low stock products	None
+POST	/api/products	Add new product	{"name":"Item","code":"ITM001","quantity":100,"price":29.99,"lowStockThreshold":10}
+PUT	/api/products/{id}	Update product	Same as POST
+DELETE	/api/products/{id}	Delete product	None
+PATCH	/api/products/{id}/increase-stock	Increase stock	{"quantity":10}
+PATCH	/api/products/{id}/decrease-stock	Decrease stock	{"quantity":5}
+Database Schema
+
+    Table: products
+        Columns:
+            id (Long, Primary Key, Auto-increment)
+            name (String, Not Null)
+            code (String, Not Null, Unique)
+            quantity (Integer, Not Null, >= 0)
+            price (Double, Not Null, > 0)
+            low_stock_threshold (Integer, Default: 10)
+
+Troubleshooting
+
+    CORS Errors:
+        Ensure InventoryApplication.java allows frontend origin:
+        java
+
+    registry.addMapping("/api/**").allowedOrigins("http://localhost:3000", "http://192.168.56.1:3000");
+    Check browser Network tab for missing Access-Control-Allow-Origin header.
+
+403 Forbidden:
+
+    Verify spring-boot-starter-security is not in pom.xml.
+    Add SecurityConfig.java to disable security if needed:
+    java
+
+        @Configuration
+        @EnableWebSecurity
+        public class SecurityConfig {
+            @Bean
+            public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).csrf(csrf -> csrf.disable());
+                return http.build();
+            }
+        }
+    H2 Console Issues:
+        Check application.properties: spring.h2.console.enabled=true.
+    Frontend Errors:
+        Verify API_URL in app.js matches backend (http://localhost:8080/api/products).
+        Check browser Console/Network tabs.
+
+Extending the System
+
+    Add Authentication:
+        Include spring-boot-starter-security and configure JWT or OAuth2.
+    Use MySQL:
+        Update application.properties:
+        properties
+
+    spring.datasource.url=jdbc:mysql://localhost:3306/inventory_db
+    spring.datasource.username=root
+    spring.datasource.password=yourpassword
+    spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+    Create database inventory_db in MySQL.
+
+Add Logging:
+
+    Use SLF4J in ProductService.java:
+    java
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    logger.info("Adding product: {}", product.getCode());
+
+Unit Tests:
+
+    Create tests in src/test/java using JUnit and MockMvc:
+    java
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class ProductControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    public void testGetAllProducts() throws Exception {
+        mockMvc.perform(get("/api/products"))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+}
